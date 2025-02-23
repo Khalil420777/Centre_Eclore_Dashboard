@@ -1,15 +1,22 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { IoPersonOutline, IoLockClosedOutline, IoMailOutline } from 'react-icons/io5';
+import { IoLockClosedOutline, IoMailOutline } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
 
-const Login = React.Fc= () => {
+const Login = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      router.push("/home"); // Redirect if already logged in
+    }
+  }, []);
 
   const handleLogin = async () => {
     setError('');
@@ -27,7 +34,7 @@ const Login = React.Fc= () => {
 
       if (response.ok) {
         Cookies.set('token', data.token, { expires: 1, secure: true, sameSite: 'Strict' });
-        router.push('/agenda'); 
+        router.push('/home'); // Redirect to home on successful login
       } else {
         setError(data.message || 'Échec de la connexion');
       }

@@ -1,10 +1,14 @@
-import Login from "./login/page";
-
+// home/page.tsx
+"use client"
+import ProtectedRoute from './Protectedroute/page'
+import Sidebar from "./Sidebar/page"
 
 export default function Home() {
   return (
-    <div >
-      <Login/>
-    </div>
+    <ProtectedRoute>
+      <div>
+     <Sidebar/>
+      </div>
+    </ProtectedRoute>
   );
 }
