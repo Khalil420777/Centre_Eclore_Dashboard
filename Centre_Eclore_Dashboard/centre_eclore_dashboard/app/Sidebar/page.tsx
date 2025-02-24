@@ -31,7 +31,7 @@ const Sidebar: React.FC = () => {
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Clients")}>Clients</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Reservations")}>Reservations</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/evenements")}>Événements</a>
-          <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/les-traitements")}>Les Traitements</a>
+          <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/traitements")}>Les Traitements</a>
         </div>
 
         {/* Logout icon at bottom */}
