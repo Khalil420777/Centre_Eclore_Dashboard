@@ -26,7 +26,7 @@ const columns = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-export default function DashboardPage() {
+export default function Client() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [formData, setFormData] = useState({
     name: "",

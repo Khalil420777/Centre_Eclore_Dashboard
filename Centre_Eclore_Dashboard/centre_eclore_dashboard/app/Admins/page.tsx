@@ -12,12 +12,19 @@ import {
   Button,
 } from "@nextui-org/react";
 import Sidebar from "../Sidebar/page";
-
+import { Eye, EyeOff } from "lucide-react";
 interface ADMINDATA {
   idContact?: number;
   fullname: string;
   Description: string;
   image: string;
+}
+
+interface ADMIN_CREDENTIALS {
+  idAddmin?: number;
+  name: string;
+  email: string;
+  password: string;
 }
 
 const columns = [
@@ -33,9 +40,14 @@ const AdminPage = () => {
     Description: "",
     image: null as File | null,
   });
+  const [ADMIN_CRED, setADMIN_CRED] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [editingAdmin, setEditingAdmin] = useState<ADMINDATA | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+  const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
     fetchAdmins();
   }, []);
@@ -145,22 +157,23 @@ const AdminPage = () => {
         setFormData((prev) => ({ ...prev, image: e.target.files![0] }));
       }
     };
+
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const formDataToSend = new FormData();
-        formDataToSend.append("fullname", formData.fullname);
-        formDataToSend.append("Description", formData.Description);
-      
-        // Append the existing image path if no new image is selected
-        if (formData.image) {
-          formDataToSend.append("image", formData.image);
-        } else {
-          formDataToSend.append("existingImage", admin.image); // Send the existing image path
-        }
-      
-        await onSave(admin.idContact, formDataToSend);
-        onClose();
-      };
+      e.preventDefault();
+      const formDataToSend = new FormData();
+      formDataToSend.append("fullname", formData.fullname);
+      formDataToSend.append("Description", formData.Description);
+
+      if (formData.image) {
+        formDataToSend.append("image", formData.image);
+      } else {
+        formDataToSend.append("existingImage", admin.image);
+      }
+
+      await onSave(admin.idContact, formDataToSend);
+      onClose();
+    };
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-md p-6 w-96">
@@ -218,6 +231,30 @@ const AdminPage = () => {
     );
   };
 
+  const createadminaccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:3001/ADMIN/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ADMIN_CRED),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.log("Server error response:", errorData);
+        throw new Error(`Failed to create admin account: ${errorData}`);
+      }
+
+      setADMIN_CRED({ name: "", email: "", password: "" });
+    } catch (error) {
+      console.error("Error creating admin account:", error);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -271,14 +308,14 @@ const AdminPage = () => {
                               setIsEditModalOpen(true);
                             }}
                           >
-                            Edit
+                            Modifier
                           </Button>
                           <Button 
                             size="sm" 
                             color="danger"
                             onClick={() => handleDelete(item.idContact || 0)} 
                           >
-                            Delete
+                            Supprimer
                           </Button>
                         </div>
                       </TableCell>
@@ -292,7 +329,7 @@ const AdminPage = () => {
           <div className="w-96">
             <div className="bg-white rounded-xl shadow-md p-6">
               <h3 className="text-xl font-semibold mb-6 text-gray-800">
-                Ajouter un nouveau admin
+                Ajouter un nouveau Contact
               </h3>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="flex flex-col gap-1.5">
@@ -339,6 +376,71 @@ const AdminPage = () => {
                   Ajouter Admin
                 </Button>
               </form>
+
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold mb-6 text-gray-800">
+                  Créer un nouveau compte d'ADMIN
+                </h3>
+                <form onSubmit={createadminaccount} className="space-y-6">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-gray-700">Name</label>
+                    <Input
+                      name="name"
+                      placeholder="Enter admin name"
+                      variant="bordered"
+                      onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, name: e.target.value })}
+                      value={ADMIN_CRED.name}
+                      className="max-w-full"
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-gray-700">Email</label>
+                    <Input
+                      name="email"
+                      placeholder="Enter admin email"
+                      variant="bordered"
+                      onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, email: e.target.value })}
+                      value={ADMIN_CRED.email}
+                      className="max-w-full"
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Password</label>
+          <Input
+            name="password"
+            type={isVisible ? "text" : "password"} // Toggle input type
+            placeholder="Enter admin password"
+            variant="bordered"
+            onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, password: e.target.value })}
+            value={ADMIN_CRED.password}
+            className="max-w-full"
+            required
+            endContent={
+              <button
+                type="button" // Prevent form submission
+                onClick={() => setIsVisible(!isVisible)} // Toggle visibility
+                className="focus:outline-none"
+              >
+                {isVisible ? (
+                  <EyeOff className="text-gray-500 h-5 w-5" /> // Eye-off icon
+                ) : (
+                  <Eye className="text-gray-500 h-5 w-5" /> // Eye icon
+                )}
+              </button>
+            }
+          />
+        </div>
+                  <Button
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
+                    size="lg"
+                  >
+                   Créer compte d'Admin
+                  </Button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
