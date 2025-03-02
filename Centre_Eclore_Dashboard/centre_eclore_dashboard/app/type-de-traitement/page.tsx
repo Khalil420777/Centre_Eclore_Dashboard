@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Sidebar from "../Sidebar/page";
-
+import { useRouter } from "next/navigation";
 interface TYPEDATA {
   idtypes: string;
   title: string;
@@ -22,7 +22,7 @@ const Page = () => {
   const [durations, setDurations] = useState<{ [key: string]: number | null }>({});
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-
+ const router = useRouter();
   // Fetch treatment types
   const fetchType = async () => {
     try {
@@ -60,7 +60,9 @@ const Page = () => {
   useEffect(() => {
     if (id) fetchType();
   }, [id]);
-
+  const handleNavigate = (id: string) => {
+    router.push(`/emploi_du_temps?id=${id}`);
+  };
   return (
     <div className="flex">
       <Sidebar />
@@ -75,7 +77,7 @@ const Page = () => {
               <div
                 key={t.idtypes}
                 className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
-              >
+                onClick={() => handleNavigate(t.idtypes)}>
                 <img
                   src={t.image}
                   alt={t.title}

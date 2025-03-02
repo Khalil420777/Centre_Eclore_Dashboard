@@ -1,8 +1,14 @@
-import React from 'react'
-
+"use client"
+import React,{useState,useEffect} from 'react'
+import Sidebar from '../Sidebar/page';
+import { useSearchParams } from "next/navigation";
 const page = () => {
+      const searchParams = useSearchParams();
+      const idtypes = searchParams.get("id");
   return (
-    <div>page</div>
+    <div>
+        <Sidebar/>
+    </div>
   )
 }
 
