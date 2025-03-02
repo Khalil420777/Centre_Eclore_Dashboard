@@ -1,127 +1,68 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../Sidebar/page';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Button } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
-interface Reservation {
-  reservationId: number;
-  userName: string;
-  userImage: string;
-  treatmentTitle: string;
-  reservationDate: string;
-  reservationTime: string;
- 
+interface employeur {
+  idContact?: number;
+  fullname: string;
+  Description: string;
+  image: string;
 }
 
-const Reservations = () => {
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+const page = () => {
+  const [employeur, setemployeur] = useState<employeur[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    // Fetch reservations data from the API
-    const fetchReservations = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/t_R/reservations');
-        if (!response.ok) {
-          throw new Error('Failed to fetch reservations');
-        }
-        const data = await response.json();
-        data.sort((a: Reservation, b: Reservation) => new Date(b.reservationDate).getTime() - new Date(a.reservationDate).getTime());
-        
-        setReservations(data);
-      } catch (error: any) {
-        setError(error.message);
-      } 
-    };
-    
-    fetchReservations();
+    fetchemployeurs();
   }, []);
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const deleteReservation = async (reservationId: number) => {
-    const isConfirmed = window.confirm("Est-ce que tu es sûr de vouloir supprimer cette réservation ?");
-    if (!isConfirmed) return;
-    setIsDeleting(true);
+  const fetchemployeurs = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/t_R/Cancel/${reservationId}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete reservation');
-      }
-      
-      // Remove the deleted reservation from the state
-   
-    
-      
-    } catch (error: any) {
-      console.error('Error deleting reservation:', error.message);
-    } finally {
-      setIsDeleting(false);
+      const response = await fetch("http://localhost:3001/CONTACT/");
+      if (!response.ok) throw new Error("Failed to fetch employeur");
+      const data = await response.json();
+      setemployeur(data);
+    } catch (error) {
+      console.error("Error fetching employeurs:", error);
     }
   };
 
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const handleNavigate = (id: string) => {
+    router.push(`/reservations_specific?id=${id}`);
+  };
 
   return (
     <div className="flex">
       <Sidebar />
-      <div className="ml-50 p-6 w-full">
-        <h2 className="text-3xl font-semibold mb-4">Reservations</h2>
-        <Table aria-label="Reserved news table" className="min-w-full">
-          <TableHeader>
-            <TableColumn className="text-sm font-medium text-gray-700">Utilisateur</TableColumn>
-            <TableColumn className="text-sm font-medium text-gray-700">Titre</TableColumn>
-            <TableColumn className="text-sm font-medium text-gray-700">Date</TableColumn>
-            <TableColumn className="text-sm font-medium text-gray-700">Heure</TableColumn>
-            <TableColumn className="text-sm font-medium text-gray-700">Actions</TableColumn>
-          </TableHeader>
-          <TableBody>
-            {reservations.map((reservation) => (
-              <TableRow key={reservation.reservationId} className="hover:bg-gray-50">
-                <TableCell>
-                  <User
-                    avatarProps={{
-                      src: `http://localhost:3001/${reservation.userImage}`,
-                      className: "w-10 h-10"
-                    }}
-                    name={reservation.userName}
-                    className="text-sm"
-                  />
-                </TableCell>
-                <TableCell className="text-sm text-gray-700">{reservation.treatmentTitle}</TableCell>
-                <TableCell className="text-sm text-gray-700">{formatDate(reservation.reservationDate)}</TableCell>
-                <TableCell className="text-sm text-gray-700">{reservation.reservationTime}</TableCell>
-                <TableCell>
-                  <Button
-                    color="danger"
-                    size="sm"
-                    isLoading={isDeleting}
-                    onPress={() => deleteReservation(reservation.reservationId)}
-                  >
-                    Supprimer
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="flex-1 p-6">
+        <h1 className="text-2xl font-bold mb-6">Choisir Employeur</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {employeur.map((emp) => (
+            <div 
+              key={emp.idContact} 
+              className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => handleNavigate(emp.idContact?.toString() || '')}
+            >
+              <div className="h-48 overflow-hidden">
+                <img 
+                  src={`http://localhost:3001/${emp.image}`} 
+                  alt={emp.fullname} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-lg">{emp.fullname}</h3>
+                <p className="text-gray-600 text-sm mt-2 line-clamp-3">{emp.Description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
-};
+}
 
-export default Reservations;
+export default page;
