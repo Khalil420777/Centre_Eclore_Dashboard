@@ -174,13 +174,15 @@ export default function Client() {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-md p-6 w-96">
-          <h3 className="text-xl font-semibold mb-6 text-gray-800">Edit Client</h3>
+          <h3 className="text-xl font-semibold mb-6 text-gray-800">
+          Modifier le client</h3>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Name</label>
+              <label className="text-sm font-medium text-gray-700">Nom</label>
               <Input
                 name="name"
-                placeholder="Enter client name"
+                placeholder="
+Entrez le nom du client"
                 variant="bordered"
                 onChange={handleChange}
                 value={formData.name}
@@ -189,11 +191,11 @@ export default function Client() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Balance</label>
+              <label className="text-sm font-medium text-gray-700">Solde</label>
               <Input
                 name="balance"
                 type="number"
-                placeholder="Enter initial balance"
+                placeholder="Entrez le solde initial"
                 variant="bordered"
                 onChange={handleChange}
                 value={formData.balance}
@@ -203,10 +205,10 @@ export default function Client() {
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Profile Image
+             Image de profil
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                Current image: {user.image ? user.image.split('/').pop() : 'None'}
+                Image actuelle: {user.image ? user.image.split('/').pop() : 'None'}
               </p>
               <input
                 type="file"
@@ -217,10 +219,10 @@ export default function Client() {
             </div>
             <div className="flex gap-2">
               <Button type="submit" color="primary">
-                Save
+              Sauvegarder
               </Button>
               <Button onClick={onClose} color="danger">
-                Cancel
+                Annuler
               </Button>
             </div>
           </form>
@@ -282,14 +284,14 @@ export default function Client() {
                               setIsEditModalOpen(true);
                             }}
                           >
-                            Edit
+                            Modifier
                           </Button>
                           <Button 
                             size="sm" 
                             color="danger"
                             onClick={() => handleDelete(item.idUsers)} 
                           >
-                            Delete
+                            Supprimer
                           </Button>
                         </div>
                       </TableCell>
@@ -307,10 +309,10 @@ export default function Client() {
               </h3>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700">Name</label>
+                  <label className="text-sm font-medium text-gray-700">Nom</label>
                   <Input
                     name="name"
-                    placeholder="Enter client name"
+                    placeholder="Entrez le nom du client"
                     variant="bordered"
                     onChange={handleChange}
                     value={formData.name}
@@ -319,11 +321,12 @@ export default function Client() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700">Password</label>
+                  <label className="text-sm font-medium text-gray-700">
+                  Mot de passe</label>
                   <Input
                     name="password"
                     type="password"
-                    placeholder="Enter password"
+                    placeholder="Entrez le mot de passe"
                     variant="bordered"
                     onChange={handleChange}
                     value={formData.password}
@@ -332,11 +335,11 @@ export default function Client() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700">Balance</label>
+                  <label className="text-sm font-medium text-gray-700">Solde</label>
                   <Input
                     name="balance"
                     type="number"
-                    placeholder="Enter initial balance"
+                    placeholder="Entrez le solde initial"
                     variant="bordered"
                     onChange={handleChange}
                     value={formData.balance}
@@ -346,7 +349,7 @@ export default function Client() {
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Profile Image
+                   Image de Profil
                   </label>
                   <input
                     type="file"

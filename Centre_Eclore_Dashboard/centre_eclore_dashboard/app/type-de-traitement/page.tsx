@@ -60,9 +60,10 @@ const Page = () => {
   useEffect(() => {
     if (id) fetchType();
   }, [id]);
-  const handleNavigate = (id: string) => {
-    router.push(`/emploi_du_temps?id=${id}`);
+  const handleNavigate = (id: string, title: string) => {
+    router.push(`/emploi_du_temps?id=${id}&title=${encodeURIComponent(title)}`);
   };
+  
   return (
     <div className="flex">
       <Sidebar />
@@ -77,7 +78,7 @@ const Page = () => {
               <div
                 key={t.idtypes}
                 className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
-                onClick={() => handleNavigate(t.idtypes)}>
+                onClick={() => handleNavigate(t.idtypes,t.title)}>
                 <img
                   src={t.image}
                   alt={t.title}

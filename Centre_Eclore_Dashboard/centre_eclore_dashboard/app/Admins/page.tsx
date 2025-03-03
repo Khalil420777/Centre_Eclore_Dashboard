@@ -177,13 +177,13 @@ const AdminPage = () => {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-md p-6 w-96">
-          <h3 className="text-xl font-semibold mb-6 text-gray-800">Edit Admin</h3>
+          <h3 className="text-xl font-semibold mb-6 text-gray-800">Modifier l'administrateur</h3>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">Full Name</label>
+              <label className="text-sm font-medium text-gray-700">Nom complet</label>
               <Input
                 name="fullname"
-                placeholder="Enter admin name"
+                placeholder="Entrez le nom de l'administrateur"
                 variant="bordered"
                 onChange={handleChange}
                 value={formData.fullname}
@@ -195,7 +195,7 @@ const AdminPage = () => {
               <label className="text-sm font-medium text-gray-700">Description</label>
               <Input
                 name="Description"
-                placeholder="Enter description"
+                placeholder="Entrez la description"
                 variant="bordered"
                 onChange={handleChange}
                 value={formData.Description}
@@ -205,10 +205,10 @@ const AdminPage = () => {
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Profile Image
+                Image de profil
               </label>
               <p className="text-xs text-gray-500 mb-2">
-                Current image: {admin.image ? admin.image.split('/').pop() : 'None'}
+                Image actuelle : {admin.image ? admin.image.split('/').pop() : 'Aucune'}
               </p>
               <input
                 type="file"
@@ -219,16 +219,17 @@ const AdminPage = () => {
             </div>
             <div className="flex gap-2">
               <Button type="submit" color="primary">
-                Save
+                Enregistrer
               </Button>
               <Button onClick={onClose} color="danger">
-                Cancel
+                Annuler
               </Button>
             </div>
           </form>
         </div>
       </div>
     );
+    
   };
 
   const createadminaccount = async (e: React.FormEvent) => {
@@ -263,10 +264,10 @@ const AdminPage = () => {
           <div className="flex-1">
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-                Liste Des Admins(Contact)
+                Liste des administrateurs (Contact)
               </h2>
               <Table 
-                aria-label="Admin table"
+                aria-label="Tableau des administrateurs"
                 className="min-w-full"
                 classNames={{
                   wrapper: "shadow-none"
@@ -325,18 +326,18 @@ const AdminPage = () => {
               </Table>
             </div>
           </div>
-
+  
           <div className="w-96">
             <div className="bg-white rounded-xl shadow-md p-6">
               <h3 className="text-xl font-semibold mb-6 text-gray-800">
-                Ajouter un nouveau Contact
+                Ajouter un nouveau contact
               </h3>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-medium text-gray-700">Full Name</label>
+                  <label className="text-sm font-medium text-gray-700">Nom complet</label>
                   <Input
                     name="fullname"
-                    placeholder="Enter admin name"
+                    placeholder="Entrez le nom de l'administrateur"
                     variant="bordered"
                     onChange={handleChange}
                     value={formData.fullname}
@@ -348,7 +349,7 @@ const AdminPage = () => {
                   <label className="text-sm font-medium text-gray-700">Description</label>
                   <Input
                     name="Description"
-                    placeholder="Enter description"
+                    placeholder="Entrez la description"
                     variant="bordered"
                     onChange={handleChange}
                     value={formData.Description}
@@ -358,7 +359,7 @@ const AdminPage = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Profile Image
+                    Image de profil
                   </label>
                   <input
                     type="file"
@@ -373,20 +374,20 @@ const AdminPage = () => {
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
                   size="lg"
                 >
-                  Ajouter Admin
+                  Ajouter un administrateur
                 </Button>
               </form>
-
+  
               <div className="mt-8">
                 <h3 className="text-xl font-semibold mb-6 text-gray-800">
                   Créer un nouveau compte d'ADMIN
                 </h3>
                 <form onSubmit={createadminaccount} className="space-y-6">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-medium text-gray-700">Name</label>
+                    <label className="text-sm font-medium text-gray-700">Nom</label>
                     <Input
                       name="name"
-                      placeholder="Enter admin name"
+                      placeholder="Entrez le nom de l'administrateur"
                       variant="bordered"
                       onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, name: e.target.value })}
                       value={ADMIN_CRED.name}
@@ -398,7 +399,7 @@ const AdminPage = () => {
                     <label className="text-sm font-medium text-gray-700">Email</label>
                     <Input
                       name="email"
-                      placeholder="Enter admin email"
+                      placeholder="Entrez l'email de l'administrateur"
                       variant="bordered"
                       onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, email: e.target.value })}
                       value={ADMIN_CRED.email}
@@ -407,37 +408,37 @@ const AdminPage = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Password</label>
-          <Input
-            name="password"
-            type={isVisible ? "text" : "password"} // Toggle input type
-            placeholder="Enter admin password"
-            variant="bordered"
-            onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, password: e.target.value })}
-            value={ADMIN_CRED.password}
-            className="max-w-full"
-            required
-            endContent={
-              <button
-                type="button" // Prevent form submission
-                onClick={() => setIsVisible(!isVisible)} // Toggle visibility
-                className="focus:outline-none"
-              >
-                {isVisible ? (
-                  <EyeOff className="text-gray-500 h-5 w-5" /> // Eye-off icon
-                ) : (
-                  <Eye className="text-gray-500 h-5 w-5" /> // Eye icon
-                )}
-              </button>
-            }
-          />
-        </div>
+                    <label className="text-sm font-medium text-gray-700">Mot de passe</label>
+                    <Input
+                      name="password"
+                      type={isVisible ? "text" : "password"} // Toggle input type
+                      placeholder="Entrez le mot de passe de l'administrateur"
+                      variant="bordered"
+                      onChange={(e) => setADMIN_CRED({ ...ADMIN_CRED, password: e.target.value })}
+                      value={ADMIN_CRED.password}
+                      className="max-w-full"
+                      required
+                      endContent={
+                        <button
+                          type="button" // Prevent form submission
+                          onClick={() => setIsVisible(!isVisible)} // Toggle visibility
+                          className="focus:outline-none"
+                        >
+                          {isVisible ? (
+                            <EyeOff className="text-gray-500 h-5 w-5" /> // Eye-off icon
+                          ) : (
+                            <Eye className="text-gray-500 h-5 w-5" /> // Eye icon
+                          )}
+                        </button>
+                      }
+                    />
+                  </div>
                   <Button
                     type="submit"
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02]"
                     size="lg"
                   >
-                   Créer compte d'Admin
+                    Créer un compte d'administrateur
                   </Button>
                 </form>
               </div>
@@ -454,6 +455,7 @@ const AdminPage = () => {
       )}
     </div>
   );
+  
 };
 
 export default AdminPage;
