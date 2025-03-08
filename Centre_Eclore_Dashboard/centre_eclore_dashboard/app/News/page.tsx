@@ -131,6 +131,22 @@ const Page = () => {
  const handlenavigate=(id: string)=>{
     router.push(`/evenement_reserve?id=${id}`);
   }
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this news?")) return;
+  
+    try {
+      const response = await fetch(`http://localhost:3001/NEWS/deletenews/${id}`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) throw new Error("Failed to delete news");
+  
+      setNews((prevNews) => prevNews.filter((item) => item.idNews !== id));
+    } catch (error) {
+      console.error("Error deleting news:", error);
+    }
+  };
+  
 
   return (
     <div className="flex">
@@ -141,20 +157,38 @@ const Page = () => {
           <h1 className="text-xl font-bold mb-4">News</h1>
           <div className="flex flex-col gap-4">
             {news.map((item) => (
-              <div key={item.idNews} className="border p-4 rounded-lg shadow-md flex flex-col" onClick={() => handlenavigate(item.idNews)}>
-                <h2 className="text-lg font-semibold">{item.title}</h2>
-                <p className="text-gray-600">{item.Description}</p>
-                <p className="text-sm text-gray-500">
-                  Date: {formatDate(item.Event_date)} | Time: {item.Event_time}
-                </p>
-                <img src={`http://localhost:3001/${item.Image}`} alt={item.title} className="w-48 h-auto mt-2 rounded object-cover" />
-
-                <div className="mt-3 flex gap-2">
-                  {item.button_1_text && <span className="px-4 py-2 bg-gray-300 rounded">{item.button_1_text}</span>}
-                  {item.button_2_text && <span className="px-4 py-2 bg-gray-300 rounded">{item.button_2_text}</span>}
-                  {item.button_3_text && <span className="px-4 py-2 bg-gray-300 rounded">{item.button_3_text}</span>}
-                </div>
-              </div>
+         <div key={item.idNews} className="border p-4 rounded-lg shadow-md flex flex-col relative">
+         {/* Delete button - red X in top right corner */}
+         <button 
+           onClick={(e) => {
+             e.stopPropagation(); // Prevent triggering the handlenavigate
+             handleDelete(item.idNews);
+           }}
+           className="absolute top-2 right-2 text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
+           title="Delete event"
+         >
+           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+             <line x1="18" y1="6" x2="6" y2="18"></line>
+             <line x1="6" y1="6" x2="18" y2="18"></line>
+           </svg>
+         </button>
+         
+         {/* Rest of your news item content */}
+         <div onClick={() => handlenavigate(item.idNews)}>
+           <h2 className="text-lg font-semibold">{item.title}</h2>
+           <p className="text-gray-600">{item.Description}</p>
+           <p className="text-sm text-gray-500">
+             Date: {formatDate(item.Event_date)} | Time: {item.Event_time}
+           </p>
+           <img src={`http://localhost:3001/${item.Image}`} alt={item.title} className="w-48 h-auto mt-2 rounded object-cover" />
+       
+           <div className="mt-3 flex gap-2">
+             {item.button_1_text && <span className="px-4 py-2 bg-gray-300 rounded">{item.button_1_text}</span>}
+             {item.button_2_text && <span className="px-4 py-2 bg-gray-300 rounded">{item.button_2_text}</span>}
+             {item.button_3_text && <span className="px-4 py-2 bg-gray-300 rounded">{item.button_3_text}</span>}
+           </div>
+         </div>
+       </div>
             ))}
           </div>
         </div>
