@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar/page";
+import { sendNotification } from "../../utils/sendNotifications";
 import { useRouter } from "next/navigation";
 interface News {
   idNews: string;
@@ -118,7 +119,13 @@ const Page = () => {
         button_2_text: "",
         button_3_text: ""
       });
-
+      await sendNotification(
+        "New Event!", 
+        `A new event has been added. Check it out!`,
+        { 
+          screen: "News"    
+        }
+      );
       // Refresh news list
       const updatedNews = await fetch("http://localhost:3001/NEWS/news").then((res) => res.json());
       updatedNews.sort((a: News, b: News) => new Date(b.Event_date).getTime() - new Date(a.Event_date).getTime());

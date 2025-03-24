@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.6.11",
+    "axios": "^1.8.3",
+    "expo-secure-store": "^14.0.1",
     "framer-motion": "^12.4.7",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.476.0",

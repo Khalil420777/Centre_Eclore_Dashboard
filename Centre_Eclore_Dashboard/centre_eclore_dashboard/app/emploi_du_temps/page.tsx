@@ -3,6 +3,13 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../Sidebar/page";
 import { useSearchParams } from "next/navigation";
 
+interface Contact {
+  idContact: number;
+  fullname: string;
+  Description: string;
+  image: string;
+}
+
 interface Schedule {
   idtypes_schedule: number;
   start_time: string;
@@ -18,9 +25,11 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [contactId, setContactId] = useState<number | null>(null);
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null); // Track the schedule being edited
-  const [updatedStartTime, setUpdatedStartTime] = useState<string>(""); // Updated start time
-  const [updatedEndTime, setUpdatedEndTime] = useState<string>(""); // Updated end time
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [updatedStartTime, setUpdatedStartTime] = useState<string>("");
+  const [updatedEndTime, setUpdatedEndTime] = useState<string>("");
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [selectedContact, setSelectedContact] = useState<number | null>(null);
 
   const searchParams = useSearchParams();
   const idtypes = searchParams.get("id");
@@ -29,8 +38,23 @@ const Page = () => {
   useEffect(() => {
     if (idtypes) {
       fetchSchedule(Number(idtypes));
+      fetchContacts();
     }
   }, [idtypes]);
+
+  const fetchContacts = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/CONTACT/");
+      if (!response.ok) {
+        throw new Error("Failed to fetch contacts");
+      }
+      const data = await response.json();
+      setContacts(data);
+    } catch (error) {
+      console.log(error, "Error fetching contacts");
+      setMessage("Erreur lors de la récupération des contacts");
+    }
+  };
 
   const fetchSchedule = async (idtypes: number) => {
     setIsLoading(true);
@@ -41,7 +65,6 @@ const Page = () => {
       }
       const data = await response.json();
       setSchedule(data.data);
-      // Assuming the API returns the contact ID in the response
       if (data.data.length > 0) {
         setContactId(data.data[0].Contact_idContact);
       }
@@ -55,8 +78,8 @@ const Page = () => {
 
   const createSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contactId) {
-      setMessage("Erreur: Contact ID non trouvé");
+    if (!selectedContact) {
+      setMessage("Erreur: Veuillez sélectionner un employé");
       return;
     }
 
@@ -71,7 +94,7 @@ const Page = () => {
           start_time: newStartTime,
           end_time: newEndTime,
           types_idtypes: Number(idtypes),
-          Contact_idContact: contactId,
+          Contact_idContact: selectedContact,
         }),
       });
 
@@ -79,7 +102,6 @@ const Page = () => {
         throw new Error("Échec de la création du calendrier");
       }
 
-      // Clear inputs and refresh schedule
       setNewStartTime("");
       setNewEndTime("");
       setMessage("Horaire ajouté avec succès!");
@@ -103,7 +125,6 @@ const Page = () => {
         throw new Error("Échec de la suppression du calendrier");
       }
 
-      // Refresh the schedule list after deletion
       setMessage("Horaire supprimé avec succès!");
       fetchSchedule(Number(idtypes));
     } catch (error) {
@@ -124,7 +145,7 @@ const Page = () => {
     setIsLoading(true);
     try {
       const response = await fetch(`http://localhost:3001/SCHEDULE/update/${editingSchedule.idtypes_schedule}`, {
-        method: "PUT", // or "PATCH"
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -138,7 +159,6 @@ const Page = () => {
         throw new Error("Échec de la mise à jour du calendrier");
       }
 
-      // Clear inputs and refresh schedule
       setEditingSchedule(null);
       setUpdatedStartTime("");
       setUpdatedEndTime("");
@@ -152,6 +172,12 @@ const Page = () => {
     }
   };
 
+  // Find the contact name from the ID
+  const getContactName = (contactId: number) => {
+    const contact = contacts.find(c => c.idContact === contactId);
+    return contact ? contact.fullname : "Contact inconnu";
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -163,6 +189,24 @@ const Page = () => {
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">Ajouter un nouvel horaire</h2>
             <form onSubmit={createSchedule} className="space-y-4">
+              <div className="mb-4">
+                <label htmlFor="contactSelect" className="block text-sm font-medium text-gray-700 mb-1">
+                  Sélectionner un employé
+                </label>
+                <select
+                  id="contactSelect"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={selectedContact || ""}
+                  onChange={(e) => setSelectedContact(Number(e.target.value))}
+                >
+                  <option value="">Sélectionner un employé</option>
+                  {contacts.map((contact) => (
+                    <option key={contact.idContact} value={contact.idContact}>
+                      {contact.fullname}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="startTime" className="block text-sm font-medium text-gray-700 mb-1">
@@ -220,13 +264,19 @@ const Page = () => {
                   >
                     <div className="space-y-2">
                       <div className="flex items-center">
-                        <svg  className="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <p className="text-gray-700"> <span className="font-medium">{getContactName(sch.Contact_idContact)}</span></p>
+                      </div>
+                      <div className="flex items-center">
+                        <svg className="h-5 w-5 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p className="text-gray-700">Début: <span className="font-medium">{sch.start_time}</span></p>
                       </div>
                       <div className="flex items-center">
-                        <svg  className="h-5 w-5 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-5 w-5 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p className="text-gray-700">Fin: <span className="font-medium">{sch.end_time}</span></p>
@@ -234,9 +284,9 @@ const Page = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => {
-                            setEditingSchedule(sch); // Set the schedule to edit
-                            setUpdatedStartTime(sch.start_time); // Pre-fill the start time
-                            setUpdatedEndTime(sch.end_time); // Pre-fill the end time
+                            setEditingSchedule(sch);
+                            setUpdatedStartTime(sch.start_time);
+                            setUpdatedEndTime(sch.end_time);
                           }}
                           className="w-full px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         >
@@ -266,7 +316,7 @@ const Page = () => {
 
           {/* Update Schedule Form (Modal) */}
           {editingSchedule && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
                 <h2 className="text-xl font-semibold text-gray-700 mb-4">Modifier l'horaire</h2>
                 <form onSubmit={updateSchedule} className="space-y-4">
