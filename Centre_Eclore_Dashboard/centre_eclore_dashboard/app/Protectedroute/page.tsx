@@ -1,18 +1,26 @@
-// ProtectedRoute.tsx
 "use client"
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 
 const ProtectedRoute = ({ children }) => {
-  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = Cookies.get('token');
+    // Check both cookie and localStorage
+    const token = Cookies.get('token') || localStorage.getItem('token');
+    
     if (!token) {
-      router.push('/');
+      window.location.href = '/login';
+    } else {
+      setIsAuthenticated(true);
     }
-  }, [router]);
+  }, []);
+
+  if (!isAuthenticated) {
+    return <div className="flex items-center justify-center min-h-screen">
+             <p>Chargement...</p>
+           </div>;
+  }
 
   return children;
 };

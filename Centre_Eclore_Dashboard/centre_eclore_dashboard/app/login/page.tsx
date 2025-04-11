@@ -14,7 +14,7 @@ const Login = () => {
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
-      router.push("/home"); // Redirect if already logged in
+      router.push("/"); // Redirect if already logged in
     }
   }, []);
 
@@ -29,12 +29,20 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
         credentials: 'include', 
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        Cookies.set('token', data.token, { expires: 1, secure: true, sameSite: 'Strict' });
-        router.push('/home'); // Redirect to home on successful login
+        // Set the token in both cookie and localStorage for redundancy
+        Cookies.set('token', data.token, { 
+          expires: 1,
+          secure: false, // For development
+          sameSite: 'Lax'
+        });
+        localStorage.setItem('token', data.token);
+        
+        // Use hard navigation rather than router.push
+        window.location.href = '/';
       } else {
         setError(data.message || 'Échec de la connexion');
       }

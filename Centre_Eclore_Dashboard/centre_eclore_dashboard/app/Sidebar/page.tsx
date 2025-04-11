@@ -3,18 +3,21 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { IoLogOutOutline } from "react-icons/io5";
 import Image from "next/image";
-
+import Cookies from "js-cookie";
 const Sidebar: React.FC = () => {
   const router = useRouter();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     const confirmLogout = window.confirm("Est-ce que tu es sûr ?");
     if (confirmLogout) {
-      await fetch("http://localhost:3001/USERS/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      router.push("/login");
+      // Remove all possible traces of authentication
+      Cookies.remove("token");
+      Cookies.remove("token", { path: '/' });
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      
+      // Force a page reload instead of just navigation
+      window.location.href = "/login";
     }
   };
 
