@@ -37,6 +37,7 @@ const Sidebar: React.FC = () => {
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/traitements")}>Les Traitements</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Admins")}>Admins</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Annule")}>Annule</a>
+          <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Annule(evenement)")}>Annule(evenement)</a>
         </div>
 
         {/* Logout icon at bottom */}
