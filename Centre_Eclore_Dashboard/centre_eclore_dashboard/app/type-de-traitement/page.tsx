@@ -80,7 +80,7 @@ const Page = () => {
                 className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
                 onClick={() => handleNavigate(t.idtypes,t.title)}>
                 <img
-                  src={t.image}
+                  src={`http://localhost:3001/${t.image}`}
                   alt={t.title}
                   className="w-full h-40 object-cover rounded-md mb-2"
                 />

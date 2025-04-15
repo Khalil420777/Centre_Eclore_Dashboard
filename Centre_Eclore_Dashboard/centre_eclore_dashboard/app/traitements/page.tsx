@@ -59,7 +59,7 @@ const Page = () => {
               onClick={() => handleNavigate(traitement.idTreatments)}
             >
               <img
-                src={traitement.Image}
+                src={`http://localhost:3001/${traitement.Image}`}
                 alt={traitement.title}
                 className="w-full h-40 object-cover rounded-md mb-2"
               />
