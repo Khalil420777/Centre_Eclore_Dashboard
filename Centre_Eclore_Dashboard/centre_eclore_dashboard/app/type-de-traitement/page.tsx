@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Sidebar from "../Sidebar/page";
 import { useRouter } from "next/navigation";
+import { PlusIcon } from 'lucide-react';
+
 interface TYPEDATA {
   idtypes: string;
   title: string;
@@ -20,9 +22,11 @@ const Page = () => {
   const [type, setType] = useState<TYPEDATA[]>([]);
   const [prices, setPrices] = useState<{ [key: string]: number | null }>({});
   const [durations, setDurations] = useState<{ [key: string]: number | null }>({});
+  const [treatmentId, setTreatmentId] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
- const router = useRouter();
+  const router = useRouter();
+  
   // Fetch treatment types
   const fetchType = async () => {
     try {
@@ -30,6 +34,12 @@ const Page = () => {
       const data = await response.json();
       setType(data.data);
       console.log("Fetched types:", data.data);
+      
+      // Save the Treatment ID for navigation
+      if (data.data.length > 0 && data.data[0].Treatments_idTreatments) {
+        setTreatmentId(data.data[0].Treatments_idTreatments);
+        console.log("Saved treatment ID:", data.data[0].Treatments_idTreatments);
+      }
       
       // After fetching the types, fetch prices and durations for each type
       for (const t of data.data) {
@@ -60,15 +70,37 @@ const Page = () => {
   useEffect(() => {
     if (id) fetchType();
   }, [id]);
+  
   const handleNavigate = (id: string, title: string) => {
     router.push(`/emploi_du_temps?id=${id}&title=${encodeURIComponent(title)}`);
+  };
+  
+  const handleAddMoreTypes = () => {
+    // Navigate to the types component with treatment ID
+    if (treatmentId) {
+      console.log("Navigating with Treatments_idTreatments:", treatmentId);
+      router.push(`/type?id=${treatmentId}`);
+    } else {
+      console.error("No Treatments_idTreatments available for navigation");
+      alert("Cannot navigate: Treatment ID not found. Try returning to the treatments list.");
+    }
   };
   
   return (
     <div className="flex">
       <Sidebar />
       <div className="p-6 w-full">
-        <h1 className="text-2xl font-bold mb-4">Les Types Du Traitement</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Les Types Du Traitement</h1>
+          <button 
+            onClick={handleAddMoreTypes}
+            className="bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition-colors"
+            title="Ajouter un type"
+          >
+            <PlusIcon size={24} />
+          </button>
+        </div>
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {type.map((t) => {
             const price = prices[t.idtypes];  
@@ -78,7 +110,7 @@ const Page = () => {
               <div
                 key={t.idtypes}
                 className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
-                onClick={() => handleNavigate(t.idtypes,t.title)}>
+                onClick={() => handleNavigate(t.idtypes, t.title)}>
                 <img
                   src={`http://localhost:3001/${t.image}`}
                   alt={t.title}
