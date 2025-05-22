@@ -4,13 +4,13 @@ import Image from 'next/image';
 import { IoLockClosedOutline, IoMailOutline } from 'react-icons/io5';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-
+import { IoEyeOutline, IoEyeOffOutline,  } from 'react-icons/io5';
 const Login = () => {
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
-
+const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
@@ -68,16 +68,28 @@ const Login = () => {
             className="flex-1 bg-transparent text-white outline-none placeholder-white"
           />
         </div>
-        <div className="flex items-center bg-white/20 rounded-3xl p-3">
-          <IoLockClosedOutline className="text-white mr-3" size={20} />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="flex-1 bg-transparent text-white outline-none placeholder-white"
-          />
-        </div>
+<div className="flex items-center bg-white/20 rounded-3xl p-3">
+  <IoLockClosedOutline className="text-white mr-3" size={20} />
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Mot de passe"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="flex-1 bg-transparent text-white outline-none placeholder-white"
+  />
+  <button
+    type="button"
+    onClick={() => setShowPassword((prev) => !prev)}
+    className="focus:outline-none ml-2"
+  >
+    {showPassword ? (
+      <IoEyeOffOutline className="text-white" size={20} />
+    ) : (
+      <IoEyeOutline className="text-white" size={20} />
+    )}
+  </button>
+</div>
+
       </div>
       {error && <p className="text-red-500 mt-2">{error}</p>}
 
