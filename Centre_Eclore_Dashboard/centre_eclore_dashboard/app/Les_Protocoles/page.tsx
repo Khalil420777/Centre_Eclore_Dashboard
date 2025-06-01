@@ -32,7 +32,9 @@ const page = () => {
   const handleaddprotocole = () => {
     router.push('/Ajouter_un_protocole'); // Navigate to a new page for adding treatments
   };
-
+  const handleNavigate = (id: string) => {
+    router.push(`/Protocole_steps?id=${id}`);
+  };
   return (
     <div className="flex">
 
@@ -49,23 +51,30 @@ const page = () => {
                     </button>
        
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {Protocole.map((Protocole) => (
-            <div
-              key={Protocole.idProtocole_types}
-              className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
-             
-            >
-              <img
-                src={`http://localhost:3001/${Protocole.image}`}
-                alt={Protocole.title}
-                className="w-full h-40 object-cover rounded-md mb-2"
-              />
-              <h2 className="text-lg font-semibold">{Protocole.title}</h2>
-              <p className="text-gray-600 text-sm">{Protocole.description}</p>
-            </div>
-          ))}
-        </div>
+    {Protocole.length === 0 ? (
+  <p className="text-gray-500 text-center mt-10 text-lg">
+    Il n'y a pas encore de protocoles.
+  </p>
+) : (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {Protocole.map((Protocole) => (
+      <div
+        key={Protocole.idProtocole_types}
+        className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
+        onClick={() => handleNavigate(Protocole.idProtocole_types)}
+      >
+        <img
+          src={`http://localhost:3001/${Protocole.image}`}
+          alt={Protocole.title}
+          className="w-full h-40 object-cover rounded-md mb-2"
+        />
+        <h2 className="text-lg font-semibold">{Protocole.title}</h2>
+        <p className="text-gray-600 text-sm">{Protocole.description}</p>
+      </div>
+    ))}
+  </div>
+)}
+
       </div>
     </div>
   )

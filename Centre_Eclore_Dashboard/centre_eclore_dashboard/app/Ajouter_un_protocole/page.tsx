@@ -63,7 +63,7 @@ const Protocolecreattion: React.FC = () => {
                 description: "", 
                 image: null 
               });
-              router.push(`/Protocole_steps?id=${responseData.idProtocole_types}`);
+              router.push(`/R_steps_creation?id=${responseData.idProtocole_types}`);
           
           
             } catch (error) {
