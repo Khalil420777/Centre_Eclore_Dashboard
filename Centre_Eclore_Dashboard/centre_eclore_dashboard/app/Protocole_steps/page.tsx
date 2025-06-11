@@ -44,7 +44,9 @@ const page = () => {
       console.error("Error fetching steps:", error);
     }
   };
-
+  const handleNavigate = (id: string, title: string) => {
+    router.push(`/emploi_du_pr_temps?id=${id}&title=${encodeURIComponent(title)}`);
+  };
   const handlemore_R_S = () => {
     if (Protocoleid) {
       router.push(`/R_steps_creation?id=${Protocoleid}`);
@@ -75,7 +77,8 @@ const page = () => {
               <div 
                 key={stepItem.idReservation_steps} 
                 className="border rounded-lg shadow-lg p-4 bg-white"
-              >
+                onClick={() => handleNavigate(stepItem.Protocole_types_idProtocole_types, stepItem.title)}>
+              
                 {stepItem.image && (
                   <img
                     src={`http://localhost:3001/${stepItem.image}`}

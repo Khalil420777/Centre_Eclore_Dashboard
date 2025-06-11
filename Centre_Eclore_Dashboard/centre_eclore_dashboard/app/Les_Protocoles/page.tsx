@@ -19,7 +19,7 @@ const page = () => {
     try {
       const response = await fetch("http://localhost:3001/PROTOCOLE/prot_type");
       const data = await response.json();
-      setProtocole(data);
+       setProtocole(Array.isArray(data) ? data : []);
       console.log(data);
       
     } catch (error) {
@@ -30,7 +30,7 @@ const page = () => {
       fetchprotocoles();
     }, []);
   const handleaddprotocole = () => {
-    router.push('/Ajouter_un_protocole'); // Navigate to a new page for adding treatments
+    router.push('/Ajouter_un_protocole'); 
   };
   const handleNavigate = (id: string) => {
     router.push(`/Protocole_steps?id=${id}`);
