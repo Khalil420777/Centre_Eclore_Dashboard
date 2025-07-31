@@ -22,6 +22,7 @@ const page = () => {
   const [reservations, setReservations] = useState<Reservation_Pr[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const idcontact = searchParams.get("id");
   
@@ -54,7 +55,6 @@ const page = () => {
     });
   };
 
-
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'pending':
@@ -78,6 +78,41 @@ const page = () => {
         return 'Annulé';
       default:
         return status;
+    }
+  };
+
+  const updateStatusToComplete = async (reservationId: number) => {
+    const isConfirmed = window.confirm("Est-ce que tu es sûr de vouloir marquer cette réservation comme terminée ?");
+    if (!isConfirmed) return;
+    
+    setIsUpdating(reservationId);
+    try {
+      const response = await fetch(`http://localhost:3001/PROTOCOLE/steps/${reservationId}`, {
+        method: 'PUT', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update protocol reservation status');
+      }
+      
+      // Update the reservation status in the state
+      setReservations(prev => 
+        prev.map(reservation => 
+          reservation.reservationId === reservationId
+            ? { ...reservation, reservationStatus: 'completed' }
+            : reservation
+        )
+      );
+      
+    } catch (error: any) {
+      console.error('Error updating protocol reservation status:', error.message);
+      alert('Erreur lors de la mise à jour du statut de la réservation');
+    } finally {
+      setIsUpdating(null);
     }
   };
 
@@ -163,14 +198,26 @@ const page = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Button
-                    color="danger"
-                    size="sm"
-                    isLoading={isDeleting}
-                    onPress={() => deleteReservation(reservation.reservationId)}
-                  >
-                    Supprimer
-                  </Button>
+                  <div className="flex gap-2">
+                    {reservation.reservationStatus === 'pending' && (
+                      <Button
+                        color="success"
+                        size="sm"
+                        isLoading={isUpdating === reservation.reservationId}
+                        onPress={() => updateStatusToComplete(reservation.reservationId)}
+                      >
+                        Marquer terminé
+                      </Button>
+                    )}
+                    <Button
+                      color="danger"
+                      size="sm"
+                      isLoading={isDeleting}
+                      onPress={() => deleteReservation(reservation.reservationId)}
+                    >
+                      Supprimer
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
