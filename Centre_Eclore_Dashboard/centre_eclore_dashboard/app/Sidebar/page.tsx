@@ -39,6 +39,7 @@ const Sidebar: React.FC = () => {
            <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Les_Protocoles")}>Les Protocoles</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Admins")}>Admins</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Annule")}>Annule</a>
+           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Annule_protocole")}>Annule(Protocole)</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Annule(evenement)")}>Annule(evenement)</a>
           <a className="text-white hover:text-[#33C8F9] cursor-pointer" onClick={() => router.push("/Blogs")}>Blogs</a>
         </div>
