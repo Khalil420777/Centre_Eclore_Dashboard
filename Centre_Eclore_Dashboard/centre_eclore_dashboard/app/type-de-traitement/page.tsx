@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Sidebar from "../Sidebar/page";
 import { useRouter } from "next/navigation";
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, Edit2Icon } from 'lucide-react';
 
 interface TYPEDATA {
   idtypes: string;
@@ -23,6 +23,14 @@ const Page = () => {
   const [prices, setPrices] = useState<{ [key: string]: number | null }>({});
   const [durations, setDurations] = useState<{ [key: string]: number | null }>({});
   const [treatmentId, setTreatmentId] = useState<string | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingType, setEditingType] = useState<TYPEDATA | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    image: null as File | null
+  });
+  
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const router = useRouter();
@@ -85,6 +93,73 @@ const Page = () => {
       alert("Cannot navigate: Treatment ID not found. Try returning to the treatments list.");
     }
   };
+
+  const handleEditClick = (e: React.MouseEvent, typeData: TYPEDATA) => {
+    e.stopPropagation(); // Prevent card navigation
+    setEditingType(typeData);
+    setFormData({
+      title: typeData.title,
+      description: typeData.description,
+      image: null
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({
+        ...prev,
+        image: e.target.files![0]
+      }));
+    }
+  };
+
+  const handleSubmitUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingType) return;
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('description', formData.description);
+    if (formData.image) {
+      formDataToSend.append('image', formData.image);
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/TYPES/update/${editingType.idtypes}`,
+        {
+          method: 'PUT',
+          body: formDataToSend,
+        }
+      );
+
+      if (response.ok) {
+        alert('Type de traitement mis à jour avec succès!');
+        setIsEditModalOpen(false);
+        fetchType(); // Refresh the list
+      } else {
+        const error = await response.json();
+        alert(`Erreur: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error updating treatment type:', error);
+      alert('Erreur lors de la mise à jour du type de traitement');
+    }
+  };
+
+  const closeModal = () => {
+    setIsEditModalOpen(false);
+    setEditingType(null);
+  };
   
   return (
     <div className="flex">
@@ -109,8 +184,17 @@ const Page = () => {
             return (
               <div
                 key={t.idtypes}
-                className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
-                onClick={() => handleNavigate(t.idtypes, t.title)}>
+                className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer relative group"
+                onClick={() => handleNavigate(t.idtypes, t.title)}
+              >
+                <button
+                  onClick={(e) => handleEditClick(e, t)}
+                  className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                  title="Modifier"
+                >
+                  <Edit2Icon size={18} className="text-blue-500" />
+                </button>
+                
                 <img
                   src={`http://localhost:3001/${t.image}`}
                   alt={t.title}
@@ -122,13 +206,79 @@ const Page = () => {
                 {price !== null && duration !== null && (
                   <div className="mt-2 text-gray-700">
                     <p>💰 Prix: {price} TND</p>
-                    <p>⏳ Durée: {duration} </p>
+                    <p>⏳ Durée: {duration}</p>
                   </div>
                 )}
               </div>
             );
           })}
         </div>
+
+        {/* Edit Modal */}
+        {isEditModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <h2 className="text-2xl font-bold mb-4">Modifier le Type de Traitement</h2>
+              <form onSubmit={handleSubmitUpdate}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Titre</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="w-full border rounded-md px-3 py-2"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="w-full border rounded-md px-3 py-2 h-24"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Image (optionnel)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                  {editingType && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 mb-2">Image actuelle:</p>
+                      <img 
+                        src={`http://localhost:3001/${editingType.image}`} 
+                        alt={editingType.title}
+                        className="w-32 h-32 object-cover rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-4 py-2 border rounded-md hover:bg-gray-100"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Mettre à jour
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

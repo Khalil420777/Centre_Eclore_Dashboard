@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 import Sidebar from '../Sidebar/page';
-import { PlusIcon } from 'lucide-react'; // Adding a plus icon from lucide-react
+import { PlusIcon, Edit2Icon } from 'lucide-react';
 
 interface TraitementsDATA {
   idTreatments: string;
@@ -13,6 +13,13 @@ interface TraitementsDATA {
 
 const Page = () => {
   const [Traitements, setTraitements] = useState<TraitementsDATA[]>([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTreatment, setEditingTreatment] = useState<TraitementsDATA | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    Description: '',
+    image: null as File | null
+  });
   const router = useRouter();
 
   const fetchTraitements = async () => {
@@ -34,7 +41,74 @@ const Page = () => {
   };
 
   const handleAddTreatment = () => {
-    router.push('/Ajouter_un_traitement'); // Navigate to a new page for adding treatments
+    router.push('/Ajouter_un_traitement');
+  };
+
+  const handleEditClick = (e: React.MouseEvent, traitement: TraitementsDATA) => {
+    e.stopPropagation(); // Prevent card navigation
+    setEditingTreatment(traitement);
+    setFormData({
+      title: traitement.title,
+      Description: traitement.Description,
+      image: null
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({
+        ...prev,
+        image: e.target.files![0]
+      }));
+    }
+  };
+
+  const handleSubmitUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTreatment) return;
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('title', formData.title);
+    formDataToSend.append('Description', formData.Description);
+    if (formData.image) {
+      formDataToSend.append('image', formData.image);
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/TREATMENT/update/${editingTreatment.idTreatments}`,
+        {
+          method: 'PUT',
+          body: formDataToSend,
+        }
+      );
+
+      if (response.ok) {
+        alert('Traitement mis à jour avec succès!');
+        setIsEditModalOpen(false);
+        fetchTraitements(); // Refresh the list
+      } else {
+        const error = await response.json();
+        alert(`Erreur: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error updating treatment:', error);
+      alert('Erreur lors de la mise à jour du traitement');
+    }
+  };
+
+  const closeModal = () => {
+    setIsEditModalOpen(false);
+    setEditingTreatment(null);
   };
 
   return (
@@ -55,9 +129,16 @@ const Page = () => {
           {Traitements.map((traitement) => (
             <div
               key={traitement.idTreatments}
-              className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer"
+              className="border rounded-lg shadow-lg p-4 bg-white cursor-pointer relative group"
               onClick={() => handleNavigate(traitement.idTreatments)}
             >
+              <button
+                onClick={(e) => handleEditClick(e, traitement)}
+                className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100"
+                title="Modifier"
+              >
+                <Edit2Icon size={18} className="text-blue-500" />
+              </button>
               <img
                 src={`http://localhost:3001/${traitement.Image}`}
                 alt={traitement.title}
@@ -68,6 +149,65 @@ const Page = () => {
             </div>
           ))}
         </div>
+
+        {/* Edit Modal */}
+        {isEditModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h2 className="text-2xl font-bold mb-4">Modifier le Traitement</h2>
+              <form onSubmit={handleSubmitUpdate}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Titre</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="w-full border rounded-md px-3 py-2"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Description</label>
+                  <textarea
+                    name="Description"
+                    value={formData.Description}
+                    onChange={handleInputChange}
+                    className="w-full border rounded-md px-3 py-2 h-24"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2">Image (optionnel)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                  {editingTreatment && (
+                    <p className="text-sm text-gray-500 mt-1">Image actuelle: {editingTreatment.Image}</p>
+                  )}
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-4 py-2 border rounded-md hover:bg-gray-100"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Mettre à jour
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
